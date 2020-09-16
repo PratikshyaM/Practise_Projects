@@ -30,7 +30,20 @@ class SkinLesionTypeDetectionModel(object):
     def predict_skin_lesion_type(self, img):
         #global session
         #set_session(session)
-        print(self.loaded_model)
         self.preds = self.loaded_model.predict(img)
-        return SkinLesionTypeDetectionModel.SKIN_LESION_TYPE_LIST[np.argmax(self.preds)]
+        
+        print(self.preds)
+        dict_ = {k:v for k,v in zip (SkinLesionTypeDetectionModel.SKIN_LESION_TYPE_LIST,np.squeeze(self.preds))}
+        dict1 = {k: v for k, v in sorted(dict_.items(), key=lambda item: item[1])}
+        
+        pred1 = dict1.popitem()
+        print("Highest Probability:  ",pred1)
+        pred2 = dict1.popitem()
+        print("Second Highest Probability: ",pred2)
+        pred3 = dict1.popitem()
+        print("Third Highest Probability: ",pred3)
+        print(np.argmax(self.preds))
+        #return SkinLesionTypeDetectionModel.SKIN_LESION_TYPE_LIST[np.argmax(self.preds)]
+        
+        return pred1, pred2, pred3
 

@@ -4,7 +4,8 @@ import os
 import string
 import random
 
-PATH = "C:/Users/Dell/Desktop/HackerEarth Healthcare/Project/others/"
+#PATH = "C:/Users/Dell/Desktop/HackerEarth Healthcare/Project/others/"
+PATH = "others/"
 OUTPUT_DIR = 'static'
 
 app = Flask(__name__)
@@ -20,10 +21,10 @@ def get_prediction(image_path):
     image = tf.keras.preprocessing.image.img_to_array(image)
     image = tf.keras.applications.mobilenet_v2.preprocess_input(image)
     image = np.expand_dims(image, axis=0)
-    pred = model.predict_skin_lesion_type(image)
-    
-    print(pred)
-    return pred
+    pred1, pred2, pred3 = model.predict_skin_lesion_type(image)
+
+    print(pred1, pred2, pred3)
+    return pred1, pred2, pred3
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -33,11 +34,26 @@ def index():
             if uploaded_file.filename[-3:] in ['jpg', 'png']:
                 image_path = os.path.join(OUTPUT_DIR, generate_filename())
                 uploaded_file.save(image_path)
-                class_name = "melanoma" #get_prediction(image_path)
+                
+                """""" #Remove the following three lines
+                pred1 = ('Melanoma', 0.5374107) 
+                pred2 = ('Basal Cell Carcinoma', 0.21953377) 
+                pred3 = ('Dermatofibroma', 0.1933243)
+                """"""
+                #Uncomment this
+                #pred1, pred2, pred3 = get_prediction(image_path)
                 result = {
-                    'class_name': class_name,
+                    'highest_class_name': pred1[0],
+                    'highest_prob':np.round(pred1[1]*100),
+                    
+                    'second_highest_class_name': pred2[0],
+                    'second_highest_prob':np.round(pred2[1]*100),
+                    
+                    'third_highest_class_name': pred3[0],
+                    'third_highest_prob':np.round(pred3[1]*100),
                     'path_to_image': image_path
                 }
+                
                 return render_template('show.html', result=result)
     return render_template('index.html')
 
